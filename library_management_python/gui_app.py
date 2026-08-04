@@ -356,7 +356,7 @@ class LibraryGUI:
     def _configure_root(self) -> None:
         self.root.title("공공도서관 도서관리 시스템")
         self.root.geometry("1280x780")
-        self.root.minsize(1040, 680)
+        self.root.minsize(1040, 900)
         self.root.configure(background=GRAY_050)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
