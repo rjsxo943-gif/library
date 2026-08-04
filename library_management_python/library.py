@@ -1,10 +1,22 @@
-"""여러 도서를 등록하고 검색하는 도서관 관리 모듈."""
+"""여러 도서를 등록하고 검색하며 대출 상태를 관리하는 모듈."""
+
+from dataclasses import dataclass
 
 from models import Book
 
 
+@dataclass(frozen=True)
+class OperationResult:
+    """도서관리 작업의 성공 여부와 상세 결과를 전달한다."""
+
+    success: bool
+    code: str
+    message: str
+    book: Book | None = None
+
+
 class Library:
-    """Book 객체 목록과 도서 등록·조회·검색 기능을 관리한다."""
+    """Book 객체 목록과 등록·조회·검색·대출·반납 기능을 관리한다."""
 
     def __init__(self) -> None:
         """비어 있는 도서 목록으로 Library 객체를 생성한다."""
@@ -104,3 +116,90 @@ class Library:
             for book in self._books
             if normalized_keyword in book.author.casefold()
         ]
+
+    def borrow_book(
+        self,
+        book_id: str,
+        borrower: str,
+        borrowed_date: str,
+    ) -> OperationResult:
+        """
+        대출 가능한 도서를 대출 처리한다.
+
+        호출자는 결과의 ``code``를 이용해 실패 원인을 구분하고,
+        ``message``를 콘솔이나 GUI에 그대로 표시할 수 있다.
+        """
+
+        book = self.find_book_by_id(book_id)
+
+        if book is None:
+            return OperationResult(
+                success=False,
+                code="book_not_found",
+                message="해당 도서 번호의 도서를 찾을 수 없습니다.",
+            )
+
+        if book.is_borrowed:
+            return OperationResult(
+                success=False,
+                code="already_borrowed",
+                message="이미 대출 중인 도서입니다.",
+                book=book,
+            )
+
+        normalized_borrower = borrower.strip()
+        normalized_date = borrowed_date.strip()
+
+        if not normalized_borrower:
+            return OperationResult(
+                success=False,
+                code="invalid_borrower",
+                message="대출자 이름은 비워둘 수 없습니다.",
+                book=book,
+            )
+
+        if not normalized_date:
+            return OperationResult(
+                success=False,
+                code="invalid_borrowed_date",
+                message="대출일은 비워둘 수 없습니다.",
+                book=book,
+            )
+
+        book.borrow(normalized_borrower, normalized_date)
+
+        return OperationResult(
+            success=True,
+            code="borrowed",
+            message="도서 대출이 완료되었습니다.",
+            book=book,
+        )
+
+    def return_book(self, book_id: str) -> OperationResult:
+        """대출 중인 도서를 반납 처리한다."""
+
+        book = self.find_book_by_id(book_id)
+
+        if book is None:
+            return OperationResult(
+                success=False,
+                code="book_not_found",
+                message="해당 도서 번호의 도서를 찾을 수 없습니다.",
+            )
+
+        if not book.is_borrowed:
+            return OperationResult(
+                success=False,
+                code="not_borrowed",
+                message="현재 대출 중인 도서가 아닙니다.",
+                book=book,
+            )
+
+        book.return_book()
+
+        return OperationResult(
+            success=True,
+            code="returned",
+            message="도서 반납이 완료되었습니다.",
+            book=book,
+        )
