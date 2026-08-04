@@ -31,9 +31,9 @@ class Library:
 
     @staticmethod
     def _normalize_search_text(text: str) -> str:
-        """부분 검색을 위해 검색어의 공백과 영문 대소문자를 정규화한다."""
+        """부분 검색을 위해 모든 공백과 영문 대소문자를 정규화한다."""
 
-        return text.strip().casefold()
+        return "".join(text.casefold().split())
 
     def add_book(self, book: Book) -> bool:
         """
@@ -83,7 +83,7 @@ class Library:
         """
         제목에 검색어가 포함된 도서를 등록 순서대로 반환한다.
 
-        검색어의 앞뒤 공백과 영문 대소문자는 무시하며,
+        검색어와 제목의 모든 공백 및 영문 대소문자를 무시하며,
         빈 검색어가 입력되면 빈 목록을 반환한다.
         """
 
@@ -95,14 +95,14 @@ class Library:
         return [
             book
             for book in self._books
-            if normalized_keyword in book.title.casefold()
+            if normalized_keyword in self._normalize_search_text(book.title)
         ]
 
     def search_by_author(self, keyword: str) -> list[Book]:
         """
         저자명에 검색어가 포함된 도서를 등록 순서대로 반환한다.
 
-        검색어의 앞뒤 공백과 영문 대소문자는 무시하며,
+        검색어와 저자명의 모든 공백 및 영문 대소문자를 무시하며,
         빈 검색어가 입력되면 빈 목록을 반환한다.
         """
 
@@ -114,7 +114,7 @@ class Library:
         return [
             book
             for book in self._books
-            if normalized_keyword in book.author.casefold()
+            if normalized_keyword in self._normalize_search_text(book.author)
         ]
 
     def borrow_book(
