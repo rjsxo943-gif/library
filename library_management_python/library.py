@@ -1,4 +1,4 @@
-"""여러 도서를 등록하고 검색하며 대출 상태를 관리하는 모듈."""
+"""여러 도서를 등록·검색하고 대출·반납·삭제 상태를 관리하는 모듈."""
 
 from dataclasses import dataclass
 
@@ -16,7 +16,7 @@ class OperationResult:
 
 
 class Library:
-    """Book 객체 목록과 등록·조회·검색·대출·반납 기능을 관리한다."""
+    """Book 객체 목록과 등록·조회·검색·대출·반납·삭제 기능을 관리한다."""
 
     def __init__(self) -> None:
         """비어 있는 도서 목록으로 Library 객체를 생성한다."""
@@ -201,5 +201,39 @@ class Library:
             success=True,
             code="returned",
             message="도서 반납이 완료되었습니다.",
+            book=book,
+        )
+
+    def delete_book(self, book_id: str) -> OperationResult:
+        """
+        대출 가능한 도서를 목록에서 삭제한다.
+
+        삭제 여부를 묻는 Y/N 사용자 확인은 콘솔이나 GUI가 담당하고,
+        이 메서드는 삭제 가능 여부 확인과 실제 삭제만 수행한다.
+        """
+
+        book = self.find_book_by_id(book_id)
+
+        if book is None:
+            return OperationResult(
+                success=False,
+                code="book_not_found",
+                message="해당 도서 번호의 도서를 찾을 수 없습니다.",
+            )
+
+        if book.is_borrowed:
+            return OperationResult(
+                success=False,
+                code="book_is_borrowed",
+                message="대출 중인 도서는 삭제할 수 없습니다.",
+                book=book,
+            )
+
+        self._books.remove(book)
+
+        return OperationResult(
+            success=True,
+            code="deleted",
+            message="도서 삭제가 완료되었습니다.",
             book=book,
         )
