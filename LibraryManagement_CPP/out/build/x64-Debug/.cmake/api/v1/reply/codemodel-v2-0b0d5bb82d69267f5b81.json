@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : [],
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f040eec181a89de70dbe.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "LibraryManagementCpp",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "library_cli::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-library_cli-Debug-3ff37c3c66d15a6400c1.json",
+					"name" : "library_cli",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "library_core::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-library_core-Debug-e35c3aaeac0abe6f1cb9.json",
+					"name" : "library_core",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "library_gui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-library_gui-Debug-ae46948910e87546c7eb.json",
+					"name" : "library_gui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "library_tests::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-library_tests-Debug-cb0ca9da1aaf78561d0a.json",
+					"name" : "library_tests",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug",
+		"source" : "C:/Users/user/library/LibraryManagement_CPP"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 10
+	}
+}

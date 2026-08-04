@@ -1,0 +1,7 @@
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/library_core.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/library_cli.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/library_gui.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/library_tests.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/test.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/user/library/LibraryManagement_CPP/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
