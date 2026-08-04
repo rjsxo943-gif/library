@@ -1,16 +1,20 @@
-"""Library 기본 등록 및 조회 기능을 검증하는 테스트."""
+"""Library의 등록·조회·검색 기능을 검증하는 테스트."""
 
 from library import Library
 from models import Book
 
 
-def make_book(book_id: str = "B0001", title: str = "Python 기초") -> Book:
+def make_book(
+    book_id: str = "B0001",
+    title: str = "Python 기초",
+    author: str = "김철수",
+) -> Book:
     """테스트에서 반복해서 사용할 Book 객체를 생성한다."""
 
     return Book(
         book_id=book_id,
         title=title,
-        author="김철수",
+        author=author,
         publisher="전자출판사",
         year=2025,
     )
@@ -113,3 +117,73 @@ def test_list_books_returns_a_new_list() -> None:
     result.clear()
 
     assert library.list_books() == [book]
+
+
+def test_search_by_title_finds_partial_matches_in_registration_order() -> None:
+    """제목 일부가 일치하는 모든 도서를 등록 순서대로 반환해야 한다."""
+
+    library = Library()
+    first_match = make_book("B0001", "Python 기초")
+    second_match = make_book("B0002", "실전 Python")
+    non_match = make_book("B0003", "C++ 기초")
+
+    for book in (first_match, second_match, non_match):
+        library.add_book(book)
+
+    assert library.search_by_title("Python") == [first_match, second_match]
+
+
+def test_search_by_title_ignores_case_and_surrounding_spaces() -> None:
+    """영문 제목 검색은 검색어의 대소문자와 앞뒤 공백을 무시해야 한다."""
+
+    library = Library()
+    book = make_book("B0001", "Clean Code with Python")
+    library.add_book(book)
+
+    assert library.search_by_title("  pYtHoN  ") == [book]
+
+
+def test_search_by_author_finds_partial_korean_name() -> None:
+    """저자 이름 일부로 여러 도서를 검색할 수 있어야 한다."""
+
+    library = Library()
+    first_match = make_book("B0001", "Python 기초", "김철수")
+    second_match = make_book("B0002", "C++ 기초", "김영희")
+    non_match = make_book("B0003", "전자공학 개론", "박민수")
+
+    for book in (first_match, second_match, non_match):
+        library.add_book(book)
+
+    assert library.search_by_author("김") == [first_match, second_match]
+
+
+def test_search_by_author_ignores_english_case() -> None:
+    """영문 저자 검색은 대소문자를 구분하지 않아야 한다."""
+
+    library = Library()
+    book = make_book("B0001", "Python Cookbook", "David Beazley")
+    library.add_book(book)
+
+    assert library.search_by_author("BEAZ") == [book]
+
+
+def test_search_returns_empty_list_when_no_book_matches() -> None:
+    """검색 조건에 맞는 도서가 없으면 빈 목록을 반환해야 한다."""
+
+    library = Library()
+    library.add_book(make_book())
+
+    assert library.search_by_title("Java") == []
+    assert library.search_by_author("홍길동") == []
+
+
+def test_empty_search_keyword_returns_empty_list() -> None:
+    """빈 문자열이나 공백만 있는 검색어는 검색 결과를 만들지 않아야 한다."""
+
+    library = Library()
+    library.add_book(make_book())
+
+    assert library.search_by_title("") == []
+    assert library.search_by_title("   ") == []
+    assert library.search_by_author("") == []
+    assert library.search_by_author("   ") == []
