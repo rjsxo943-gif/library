@@ -1,4 +1,4 @@
-"""Library의 등록·조회·검색 기능을 검증하는 테스트."""
+"""Library의 등록·조회·검색·대출·반납 기능을 검증하는 테스트."""
 
 from library import Library
 from models import Book
@@ -187,3 +187,124 @@ def test_empty_search_keyword_returns_empty_list() -> None:
     assert library.search_by_title("   ") == []
     assert library.search_by_author("") == []
     assert library.search_by_author("   ") == []
+
+
+def test_book_can_be_borrowed_by_id() -> None:
+    """도서 번호로 정상 대출하면 도서 상태와 대출 정보가 변경되어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+
+    result = library.borrow_book("  b0001  ", " 김건태 ", " 2026-08-04 ")
+
+    assert result.success is True
+    assert result.code == "borrowed"
+    assert result.message == "도서 대출이 완료되었습니다."
+    assert result.book is book
+    assert book.is_borrowed is True
+    assert book.borrower == "김건태"
+    assert book.borrowed_date == "2026-08-04"
+
+
+def test_borrow_unknown_book_returns_book_not_found() -> None:
+    """존재하지 않는 도서의 대출 요청은 실패해야 한다."""
+
+    library = Library()
+
+    result = library.borrow_book("B9999", "김건태", "2026-08-04")
+
+    assert result.success is False
+    assert result.code == "book_not_found"
+    assert result.book is None
+
+
+def test_already_borrowed_book_cannot_be_borrowed_again() -> None:
+    """이미 대출 중인 도서는 다시 대출할 수 없어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+    library.borrow_book("B0001", "김건태", "2026-08-04")
+
+    result = library.borrow_book("B0001", "홍길동", "2026-08-05")
+
+    assert result.success is False
+    assert result.code == "already_borrowed"
+    assert result.book is book
+    assert book.borrower == "김건태"
+    assert book.borrowed_date == "2026-08-04"
+
+
+def test_empty_borrower_is_rejected_without_changing_book() -> None:
+    """빈 대출자 이름은 거부되고 도서 상태도 유지되어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+
+    result = library.borrow_book("B0001", "   ", "2026-08-04")
+
+    assert result.success is False
+    assert result.code == "invalid_borrower"
+    assert book.is_available() is True
+
+
+def test_empty_borrowed_date_is_rejected_without_changing_book() -> None:
+    """빈 대출일은 거부되고 도서 상태도 유지되어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+
+    result = library.borrow_book("B0001", "김건태", "   ")
+
+    assert result.success is False
+    assert result.code == "invalid_borrowed_date"
+    assert book.is_available() is True
+
+
+def test_borrowed_book_can_be_returned_by_id() -> None:
+    """대출 중인 도서를 반납하면 대출 정보가 초기화되어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+    library.borrow_book("B0001", "김건태", "2026-08-04")
+
+    result = library.return_book("  b0001  ")
+
+    assert result.success is True
+    assert result.code == "returned"
+    assert result.message == "도서 반납이 완료되었습니다."
+    assert result.book is book
+    assert book.is_available() is True
+    assert book.borrower == ""
+    assert book.borrowed_date == ""
+
+
+def test_return_unknown_book_returns_book_not_found() -> None:
+    """존재하지 않는 도서의 반납 요청은 실패해야 한다."""
+
+    library = Library()
+
+    result = library.return_book("B9999")
+
+    assert result.success is False
+    assert result.code == "book_not_found"
+    assert result.book is None
+
+
+def test_available_book_cannot_be_returned() -> None:
+    """대출되지 않은 도서는 반납할 수 없어야 한다."""
+
+    library = Library()
+    book = make_book()
+    library.add_book(book)
+
+    result = library.return_book("B0001")
+
+    assert result.success is False
+    assert result.code == "not_borrowed"
+    assert result.book is book
+    assert book.is_available() is True
